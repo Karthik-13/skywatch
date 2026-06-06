@@ -1,0 +1,340 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>SkyWatch HQ - Tactical Monitor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#2e3037",
+                    "on-secondary-container": "#00662c",
+                    "on-surface-variant": "#b9cacb",
+                    "on-secondary-fixed": "#00210a",
+                    "tertiary-fixed-dim": "#ffb77a",
+                    "inverse-surface": "#e1e2eb",
+                    "secondary": "#a7ffb3",
+                    "surface-tint": "#00dbe7",
+                    "surface-container-low": "#191c22",
+                    "secondary-container": "#00ee70",
+                    "tertiary-container": "#ffd2af",
+                    "surface-container": "#1d2026",
+                    "on-secondary-fixed-variant": "#005322",
+                    "on-tertiary-container": "#914f00",
+                    "primary-fixed-dim": "#00dbe7",
+                    "surface-container-highest": "#32353c",
+                    "background": "#10131a",
+                    "inverse-primary": "#00696f",
+                    "surface-container-lowest": "#0b0e14",
+                    "on-surface": "#e1e2eb",
+                    "secondary-fixed-dim": "#00e46b",
+                    "on-primary-fixed-variant": "#004f54",
+                    "on-tertiary-fixed-variant": "#6d3a00",
+                    "secondary-fixed": "#66ff8f",
+                    "surface": "#10131a",
+                    "on-error-container": "#ffdad6",
+                    "on-primary": "#00363a",
+                    "surface-container-high": "#272a31",
+                    "primary": "#e1fdff",
+                    "surface-dim": "#10131a",
+                    "on-background": "#e1e2eb",
+                    "error": "#ffb4ab",
+                    "outline": "#849495",
+                    "tertiary": "#fff5f0",
+                    "on-tertiary": "#4c2700",
+                    "surface-bright": "#363940",
+                    "primary-container": "#00f2ff",
+                    "on-primary-container": "#006a71",
+                    "primary-fixed": "#74f5ff",
+                    "outline-variant": "#3a494b",
+                    "error-container": "#93000a",
+                    "tertiary-fixed": "#ffdcc2",
+                    "on-error": "#690005",
+                    "on-primary-fixed": "#002022",
+                    "on-secondary": "#003915",
+                    "surface-variant": "#32353c",
+                    "on-tertiary-fixed": "#2e1500"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "unit": "8px",
+                    "sidebar-width": "320px",
+                    "margin-mobile": "16px",
+                    "gutter": "16px",
+                    "margin-desktop": "32px"
+            },
+            "fontFamily": {
+                    "body-base": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "telemetry-lg": ["JetBrains Mono"],
+                    "display-lg": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "telemetry-sm": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "body-base": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "telemetry-lg": ["18px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-caps": ["11px", {"lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "telemetry-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .radar-sweep {
+            background: conic-gradient(from 0deg, transparent 0deg, rgba(0, 219, 231, 0.1) 360deg);
+            animation: rotate 4s linear infinite;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        .animate-pulse-slow {
+            animation: pulse 2s infinite ease-in-out;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(132, 148, 149, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-base antialiased">
+<div class="flex h-screen w-full flex-col overflow-hidden">
+<!-- Header -->
+<header class="flex h-16 items-center justify-between border-b border-outline-variant px-margin-desktop bg-surface-container-lowest z-10">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="font-headline-md tracking-tight font-bold">SkyWatch HQ</h2>
+</div>
+
+
+<div class="h-8 w-px bg-outline-variant/30"></div><div class="flex items-center gap-2 font-telemetry-lg bg-surface-container rounded-lg px-4 py-1 text-primary border border-outline-variant"><span class="material-symbols-outlined text-[18px]">schedule</span> 14:22:05 UTC</div></div>
+<div class="flex items-center gap-4 justify-end">
+
+
+<nav class="flex items-center gap-6 ml-8"><a href="#" class="font-label-caps text-primary font-bold transition-colors tracking-wider font-body-base">Radar</a><a href="#" class="font-label-caps text-on-surface-variant hover:text-primary transition-colors tracking-wider font-body-base">Manifest</a><a href="#" class="font-label-caps text-on-surface-variant hover:text-primary transition-colors tracking-wider font-body-base">History</a><a href="#" class="font-label-caps text-on-surface-variant hover:text-primary transition-colors tracking-wider font-body-base">Alerts</a></nav></div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Sidebar Left: Manifest -->
+<aside class="w-sidebar-width flex flex-col border-r border-outline-variant bg-surface-container-lowest">
+<div class="p-4 border-b border-outline-variant">
+<h3 class="font-label-caps text-on-surface-variant mb-4 font-bold tracking-tight">Active Manifest</h3>
+<div class="relative">
+<input class="w-full bg-surface-container border-none rounded-lg py-2 pl-10 text-on-surface font-body-base placeholder:text-outline" placeholder="Filter flights..." type="text">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto space-y-px">
+<!-- High Priority Card -->
+<div class="p-4 bg-tertiary-container/10 border-l-4 border-tertiary transition-all hover:bg-tertiary-container/20 cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<span class="font-telemetry-lg text-tertiary">SW-402</span>
+<span class="bg-tertiary text-on-tertiary font-label-caps px-2 py-0.5 rounded font-bold">CRITICAL</span>
+</div>
+<div class="grid grid-cols-2 gap-2 text-on-surface-variant">
+<div class="font-telemetry-sm">ALT: 12,400FT</div>
+<div class="font-telemetry-sm">SPD: 420KTS</div>
+<div class="font-telemetry-sm">DST: 88M</div>
+<div class="font-telemetry-sm">HDG: 245°</div>
+</div>
+</div>
+<!-- Standard Cards -->
+<div class="p-4 transition-all hover:bg-surface-container-high cursor-pointer border-l-4 border-transparent">
+<div class="flex justify-between items-start mb-2">
+<span class="font-telemetry-lg text-primary">UA-911</span>
+<span class="bg-surface-container-high text-on-surface-variant font-label-caps px-2 py-0.5 rounded font-bold">STABLE</span>
+</div>
+<div class="grid grid-cols-2 gap-2 text-on-surface-variant">
+<div class="font-telemetry-sm">ALT: 34,000FT</div>
+<div class="font-telemetry-sm">SPD: 510KTS</div>
+<div class="font-telemetry-sm">DST: 2.4KM</div>
+<div class="font-telemetry-sm">HDG: 090°</div>
+</div>
+</div>
+<div class="p-4 transition-all hover:bg-surface-container-high cursor-pointer border-l-4 border-transparent">
+<div class="flex justify-between items-start mb-2">
+<span class="font-telemetry-lg text-primary">DL-442</span>
+<span class="bg-surface-container-high text-on-surface-variant font-label-caps px-2 py-0.5 rounded font-bold">STABLE</span>
+</div>
+<div class="grid grid-cols-2 gap-2 text-on-surface-variant">
+<div class="font-telemetry-sm">ALT: 29,500FT</div>
+<div class="font-telemetry-sm">SPD: 485KTS</div>
+<div class="font-telemetry-sm">DST: 5.1KM</div>
+<div class="font-telemetry-sm">HDG: 185°</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Tactical Radar View -->
+<main class="relative flex-1 bg-surface-container-lowest overflow-hidden">
+<!-- Background Map Element (Conceptual) -->
+<div class="absolute inset-0 opacity-20 grayscale">
+<img class="w-full h-full object-cover" data-alt="A highly detailed topographical map of a metropolitan area displayed in dark tactical mode. The map features subtle elevation shading, intricate street grids, and water bodies rendered in shades of obsidian and deep grey. The aesthetic is purely technical and aeronautical, serving as a backdrop for high-precision radar instrumentation." data-location="London" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUIwRGtR0PpxtdSowIvFPommek2slTJ8pu41qD9nyvjhhQnHSyq0rLgm5qTzcNBb02EtdUjn1JQyHlWWHX6hbKabt6CwqUqwxq0T7Eg2dlhI_DHtUCmzG8Cv7Ly840p3wl6yXTMBfYL7-G1yCZZoq2yZP2J9pC9wxLKHnoJXRvBwpl6XX8DQdqMtKsIGBTeNxJM1ginIipF10P1rdSE4EIsoAfhlfAHHuckqguY9kXYYGIJhkS5CraERn_5FHF9pIOOSFdwcIiVjQ">
+</div>
+<!-- Radar UI Layer -->
+<div class="absolute inset-0 flex items-center justify-center">
+<!-- Concentric Rings -->
+<div class="absolute size-[200px] border border-outline-variant/30 rounded-full flex items-center justify-center">
+<span class="absolute -top-4 font-label-caps text-outline text-[9px]">100M</span>
+<!-- Proximity Alert Pulse -->
+<div class="absolute inset-0 border-2 border-tertiary/20 rounded-full animate-ping"></div>
+</div>
+<div class="absolute size-[500px] border border-outline-variant/30 rounded-full flex items-center justify-center">
+<span class="absolute -top-4 font-label-caps text-outline text-[9px]">500M</span>
+</div>
+<div class="absolute size-[800px] border border-outline-variant/20 rounded-full flex items-center justify-center">
+<span class="absolute -top-4 font-label-caps text-outline text-[9px]">1KM</span>
+</div>
+<!-- Radar Sweep -->
+<div class="absolute size-[800px] radar-sweep rounded-full pointer-events-none"></div>
+<!-- Home Center Point -->
+<div class="relative z-10">
+<div class="size-8 bg-primary-container rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(0,219,231,0.5)] animate-pulse-slow"><span class="material-symbols-outlined text-on-primary-container text-[20px]" style="font-variation-settings: 'FILL' 1;">home</span></div>
+<div class="absolute -inset-2 border border-primary/40 rounded-full animate-ping"></div>
+</div>
+<!-- Aircraft Icons (Absolute Positioned) -->
+<!-- Critical Aircraft -->
+<div class="absolute translate-x-[40px] -translate-y-[60px] group cursor-pointer">
+<div class="flex flex-col items-center">
+<div class="font-telemetry-sm text-tertiary bg-surface-container-highest px-2 py-0.5 rounded mb-1 border border-tertiary/50">SW-402</div>
+<div class="text-tertiary drop-shadow-[0_0_8px_rgba(255,180,171,0.8)]">
+<span class="material-symbols-outlined text-[32px] rotate-[245deg]">flight</span>
+</div>
+</div>
+<!-- Flight path line conceptual -->
+<div class="absolute top-1/2 left-1/2 w-48 h-px bg-gradient-to-r from-tertiary to-transparent origin-left rotate-[65deg] opacity-50"></div>
+</div>
+<!-- Safe Aircraft 1 -->
+<div class="absolute -translate-x-[240px] translate-y-[150px] group cursor-pointer">
+<div class="flex flex-col items-center">
+<div class="font-telemetry-sm text-primary bg-surface-container-high px-2 py-0.5 rounded mb-1 border border-primary/20">UA-911</div>
+<div class="text-primary opacity-80 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[24px] rotate-[90deg]">flight</span>
+</div>
+</div>
+</div>
+<!-- Safe Aircraft 2 -->
+<div class="absolute translate-x-[310px] translate-y-[220px] group cursor-pointer">
+<div class="flex flex-col items-center">
+<div class="font-telemetry-sm text-primary bg-surface-container-high px-2 py-0.5 rounded mb-1 border border-primary/20">DL-442</div>
+<div class="text-primary opacity-80 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[24px] rotate-[185deg]">flight</span>
+</div>
+</div>
+</div>
+</div>
+<!-- HUD Overlays -->
+<div class="absolute bottom-6 left-6 flex gap-4">
+<div class="glass-panel p-4 rounded-lg flex flex-col gap-1">
+<span class="font-label-caps text-on-surface-variant">LOC COORDINATES</span>
+<span class="font-telemetry-lg text-primary">51.5074° N, 0.1278° W</span>
+</div>
+<div class="glass-panel p-4 rounded-lg flex flex-col gap-1">
+<span class="font-label-caps text-on-surface-variant">SCAN RESOLUTION</span>
+<span class="font-telemetry-lg text-primary">4K MK-IV</span>
+</div>
+</div>
+</main>
+<!-- Sidebar Right: Proximity Alerts -->
+<aside class="w-sidebar-width flex flex-col border-l border-outline-variant bg-surface-container-lowest">
+<div class="p-4 border-b border-outline-variant bg-tertiary-container/10">
+<div class="flex items-center gap-2 text-tertiary mb-2">
+<span class="material-symbols-outlined animate-pulse" style="opacity: 1;">warning</span>
+<h3 class="font-label-caps font-bold tracking-tight">Active Proximity</h3>
+</div>
+<div class="bg-surface-container p-4 border border-tertiary/30 rounded-xl font-body-base"><div class="flex justify-between items-start mb-4"><span class="font-label-caps text-on-surface-variant uppercase">Closest Contact</span><span class="font-telemetry-lg text-tertiary font-bold tracking-wider">SW-402</span></div><div class="grid grid-cols-2 gap-4"><div><p class="font-label-caps text-on-surface-variant mb-1 uppercase">Time to Proximity</p><p class="font-telemetry-lg text-on-surface text-2xl" id="timer">00:06:15</p></div><div class="text-right"><p class="font-label-caps text-on-surface-variant mb-1 uppercase">Separation</p><p class="font-telemetry-lg text-on-surface">88.4M</p></div></div><div class="w-full bg-surface-container-highest h-1 rounded-full mt-6 overflow-hidden"><div class="bg-tertiary h-full w-4/5"></div></div></div>
+</div>
+<div class="flex-1 p-4 space-y-4 overflow-y-auto">
+<h3 class="font-label-caps text-on-surface-variant font-bold tracking-tight">Telemetry Log</h3>
+<div class="space-y-3">
+<div class="border-l-2 border-primary pl-3 py-1">
+<p class="font-telemetry-sm text-primary">14:21:44 UTC</p>
+<p class="font-body-base text-sm text-on-surface">UA-911 contact established Sector 4</p>
+</div>
+<div class="border-l-2 border-tertiary pl-3 py-1">
+<p class="font-telemetry-sm text-tertiary">14:20:12 UTC</p>
+<p class="font-body-base text-sm text-on-surface">WARNING: SW-402 distance threshold 100m breached</p>
+</div>
+<div class="border-l-2 border-secondary pl-3 py-1">
+<p class="font-telemetry-sm text-secondary">14:18:55 UTC</p>
+<p class="font-body-base text-sm text-on-surface">DL-442 cleared for landing runway 2</p>
+</div>
+<div class="border-l-2 border-outline pl-3 py-1">
+<p class="font-telemetry-sm text-outline">14:15:30 UTC</p>
+<p class="font-body-base text-sm text-on-surface">Radar sweep calibration complete</p>
+</div>
+</div>
+</div>
+<!-- Action Footer -->
+</aside>
+</div>
+<!-- Footer / Status Bar -->
+
+</div>
+<script>
+        // Micro-interaction for the countdown timer
+        function updateTimer() {
+            const timerElement = document.getElementById('timer');
+            let timeParts = timerElement.innerText.split(':').map(Number);
+            let totalSeconds = timeParts[0] * 3600 + timeParts[1] * 60 + timeParts[2];
+            
+            if (totalSeconds > 0) {
+                totalSeconds--;
+            }
+
+            const h = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+            const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            
+            timerElement.innerText = `${h}:${m}:${s}`;
+        }
+
+        setInterval(updateTimer, 1000);
+
+        // Simple atmospheric effect: flicker some UI elements slightly
+        const glitchedElements = document.querySelectorAll('.animate-pulse');
+        setInterval(() => {
+            glitchedElements.forEach(el => {
+                if(Math.random() > 0.95) {
+                    el.style.opacity = 0.2;
+                    setTimeout(() => el.style.opacity = 1, 50);
+                }
+            });
+        }, 100);
+    </script>
+
+
+
+
+
+
+
+
+</body></html>

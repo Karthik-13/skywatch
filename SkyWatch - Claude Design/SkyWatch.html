@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkyWatch — Tactical Airspace Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="screens.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ======================= LEFT RAIL ======================= -->
+  <aside class="rail">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+          <circle cx="15" cy="15" r="13" stroke="#16d6e8" stroke-width="1.4" opacity="0.5"/>
+          <circle cx="15" cy="15" r="7" stroke="#16d6e8" stroke-width="1.2" opacity="0.7"/>
+          <path d="M15 15 L26 9" stroke="#16d6e8" stroke-width="1.4"/>
+          <circle cx="15" cy="15" r="1.6" fill="#16d6e8"/>
+          <circle cx="21" cy="10" r="1.4" fill="#ff7a18"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">SKY<b>WATCH</b></div>
+        <div class="brand-sub">SECTOR 7G</div>
+      </div>
+    </div>
+
+    <div class="rail-section">Operations</div>
+    <nav class="nav">
+      <div class="nav-item" data-go="dashboard">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12 19 8" stroke-linecap="round"/></svg></span>
+        <span class="lbl">Live Radar</span>
+        <span class="alert-dot"></span>
+      </div>
+      <div class="nav-item" data-go="telemetry">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></span>
+        <span class="lbl">Flight Telemetry</span>
+        <span class="kbd">2</span>
+      </div>
+    </nav>
+
+    <div class="rail-section">Records</div>
+    <nav class="nav">
+      <div class="nav-item" data-go="history">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/></svg></span>
+        <span class="lbl">Flyover History</span>
+        <span class="kbd">3</span>
+      </div>
+    </nav>
+
+    <div class="rail-section">System</div>
+    <nav class="nav">
+      <div class="nav-item" data-go="calibration">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h7M15 18h5"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="13" cy="18" r="2"/></svg></span>
+        <span class="lbl">Alerts & Calibration</span>
+        <span class="kbd">4</span>
+      </div>
+    </nav>
+
+    <div class="rail-spacer"></div>
+
+    <div class="rail-status">
+      <div class="row"><span class="k">Receiver</span><span class="v ok">● ONLINE</span></div>
+      <div class="row"><span class="k">Msg Rate</span><span class="v cy">812 /s</span></div>
+      <div class="row"><span class="k">GPS Lock</span><span class="v ok">3D · ±3m</span></div>
+      <div class="row"><span class="k">Feed Lag</span><span class="v">0.4 s</span></div>
+    </div>
+
+    <div class="station-tag">
+      <div class="av">7G</div>
+      <div>
+        <div class="nm">Home Station</div>
+        <div class="id">47.6062°N · 122.3321°W</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ======================= MAIN ======================= -->
+  <div class="main">
+    <header class="topbar">
+      <div class="page-id">
+        <span class="crumb" id="pg-crumb">OPS / LIVE</span>
+        <span class="title" id="pg-title">Live Radar Dashboard</span>
+      </div>
+      <div class="topbar-spacer"></div>
+      <div class="sysline">
+        <div class="sysmetric"><span class="k">Local</span><span class="v" id="clk-local">--:--:--</span></div>
+        <div class="sysmetric"><span class="k">Zulu</span><span class="v cy" id="clk-utc">--:--:--</span></div>
+        <div class="sysdiv"></div>
+        <div class="sysmetric"><span class="k">Tracked</span><span class="v" id="top-tracked">7</span></div>
+        <div class="sysmetric"><span class="k">Breach</span><span class="v or" id="top-breach">1</span></div>
+        <div class="sysdiv"></div>
+        <div class="live-pill"><span class="dot"></span>LIVE <span id="clk-z">----Z</span></div>
+      </div>
+    </header>
+
+    <main class="screens">
+      <section class="screen" id="screen-dashboard" data-screen-label="Live Radar Dashboard"><div class="screen-pad"></div></section>
+      <section class="screen" id="screen-telemetry" data-screen-label="Flight Telemetry"><div class="screen-pad"></div></section>
+      <section class="screen" id="screen-history" data-screen-label="Flyover History"><div class="screen-pad"></div></section>
+      <section class="screen" id="screen-calibration" data-screen-label="Alerts & Calibration"><div class="screen-pad"></div></section>
+    </main>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="radar.js"></script>
+<script src="screens.js"></script>
+</body>
+</html>

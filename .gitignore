@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Backend runtime
+backend/skywatch.db
+*.db
+
+# Archives (unpacked source folders are tracked instead)
+*.zip
+
+# OS / editor
+.DS_Store

@@ -1,0 +1,394 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>SkyWatch | Flyover History</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="shared.css" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#2e3037",
+                    "on-primary": "#00363a",
+                    "on-primary-container": "#006a71",
+                    "on-secondary-fixed": "#00210a",
+                    "surface-container": "#1d2026",
+                    "on-background": "#e1e2eb",
+                    "on-tertiary-fixed": "#2e1500",
+                    "on-secondary-container": "#00662c",
+                    "surface-variant": "#32353c",
+                    "on-secondary": "#003915",
+                    "primary-fixed": "#74f5ff",
+                    "tertiary-container": "#ffd2af",
+                    "surface-dim": "#10131a",
+                    "tertiary": "#fff5f0",
+                    "tertiary-fixed-dim": "#ffb77a",
+                    "error": "#ffb4ab",
+                    "inverse-surface": "#e1e2eb",
+                    "primary": "#e1fdff",
+                    "primary-container": "#00f2ff",
+                    "secondary": "#a7ffb3",
+                    "primary-fixed-dim": "#00dbe7",
+                    "on-surface-variant": "#b9cacb",
+                    "on-surface": "#e1e2eb",
+                    "surface-tint": "#00dbe7",
+                    "error-container": "#93000a",
+                    "tertiary-fixed": "#ffdcc2",
+                    "surface": "#10131a",
+                    "background": "#10131a",
+                    "outline": "#849495",
+                    "secondary-fixed": "#66ff8f",
+                    "on-primary-fixed": "#002022",
+                    "outline-variant": "#3a494b",
+                    "on-error": "#690005",
+                    "inverse-primary": "#00696f",
+                    "on-secondary-fixed-variant": "#005322",
+                    "on-primary-fixed-variant": "#004f54",
+                    "on-tertiary-container": "#914f00",
+                    "secondary-container": "#00ee70",
+                    "surface-container-high": "#272a31",
+                    "on-error-container": "#ffdad6",
+                    "on-tertiary-fixed-variant": "#6d3a00",
+                    "surface-container-lowest": "#0b0e14",
+                    "on-tertiary": "#4c2700",
+                    "surface-bright": "#363940",
+                    "surface-container-highest": "#32353c",
+                    "surface-container-low": "#191c22",
+                    "secondary-fixed-dim": "#00e46b"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "unit": "8px",
+                    "sidebar-width": "320px",
+                    "gutter": "16px",
+                    "margin-desktop": "32px"
+            },
+            "fontFamily": {
+                    "body-base": ["Inter"],
+                    "telemetry-sm": ["JetBrains Mono"],
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "telemetry-lg": ["JetBrains Mono"],
+                    "label-caps": ["Inter"]
+            },
+            "fontSize": {
+                    "body-base": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "telemetry-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "telemetry-lg": ["18px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "label-caps": ["11px", {"lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .radar-grid { background-image: radial-gradient(circle, rgba(0, 219, 231, 0.05) 1px, transparent 1px); background-size: 50px 50px; }
+        .pip-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 219, 231, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 219, 231, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 219, 231, 0); } }
+        .expandable-row { transition: background-color 0.2s ease; cursor: pointer; }
+        .expandable-row[data-expanded="true"] { background-color: rgba(0, 219, 231, 0.05); }
+        .expanded-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .expandable-row[data-expanded="true"] + tr .expanded-content { max-height: 300px; }
+    </style>
+</head>
+<body class="font-body-base text-body-base selection:bg-primary-container/30 flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar -->
+<header class="bg-surface/80 dark:bg-surface/80 backdrop-blur-xl text-primary flex justify-between items-center w-full px-margin-desktop h-16 z-50 border-b border-outline-variant/30 shadow-[0_0_15px_rgba(0,219,231,0.1)]">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2.5 text-primary">
+<div class="brand-mark">
+<svg class="w-full h-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z" fill="currentColor"></path></svg>
+</div>
+<h2 class="brand-title">SkyWatch HQ</h2>
+</div>
+<div class="h-8 w-px bg-outline-variant mx-2"></div>
+<div class="flex items-center bg-surface-variant/30 px-3 py-1 rounded">
+<span class="material-symbols-outlined text-primary-fixed-dim text-[20px] mr-2">gps_fixed</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface">40.7128° N, 74.0060° W</span>
+</div>
+</div>
+<div class="flex items-center gap-6 h-full">
+<nav class="hidden md:flex gap-4 h-full items-center">
+<a href="index.html" class="font-telemetry-sm text-telemetry-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer px-3 py-2 rounded">RADAR</a>
+<a href="manifest.html" class="font-telemetry-sm text-telemetry-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer px-3 py-2 rounded">MANIFEST</a>
+<a href="history.html" class="font-telemetry-sm text-telemetry-sm text-primary font-bold border-b-2 border-primary h-full flex items-center px-3">HISTORY</a>
+<a href="alerts.html" class="font-telemetry-sm text-telemetry-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer px-3 py-2 rounded">ALERTS</a>
+</nav>
+<div class="flex gap-2 ml-4">
+
+
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Side Navigation Bar (Contextual) -->
+<aside class="w-[320px] bg-surface-container-lowest/80 backdrop-blur-xl border-r border-outline-variant/20 flex flex-col py-8 z-40 bg-surface-dim shrink-0 overflow-y-auto">
+<div class="px-8 mb-8">
+<div class="flex items-center gap-2 text-on-surface-variant/80 uppercase">
+<span class="material-symbols-outlined text-[18px]" data-icon="analytics">analytics</span>
+<h2 class="font-label-caps text-label-caps uppercase tracking-widest">Archive Tools</h2>
+</div>
+<p class="font-telemetry-sm text-telemetry-sm text-on-surface-variant opacity-60 mt-1">Log Analytics &amp; Management</p>
+</div>
+<nav class="flex-grow"><ul class="space-y-1">
+<li class="px-8 py-3 text-on-surface-variant hover:bg-surface-variant/30 transition-all duration-200 cursor-pointer flex items-center gap-4">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-telemetry-sm text-telemetry-sm uppercase tracking-widest">Search History</span>
+</li>
+<li class="px-8 py-3 text-on-surface-variant hover:bg-surface-variant/30 transition-all duration-200 cursor-pointer flex items-center gap-4">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="font-telemetry-sm text-telemetry-sm uppercase tracking-widest">Date Range Picker</span>
+</li>
+<li class="px-8 py-3 text-primary border-l-2 border-primary bg-primary/5 transition-all duration-200 cursor-pointer flex items-center gap-4 bg-primary/10">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+<span class="font-telemetry-sm text-telemetry-sm uppercase tracking-widest">Export Options</span>
+</li>
+</ul></nav>
+<div class="px-8 mb-8"><div class="space-y-2"><p class="font-label-caps text-label-caps text-on-surface-variant mb-2 tracking-widest uppercase">QUICK EXPORT</p><div class="grid grid-cols-2 gap-2"><button class="py-2 bg-surface-container-high border border-outline-variant/30 text-on-surface font-label-caps text-label-caps rounded hover:bg-surface-variant/50 transition-all">CSV</button><button class="py-2 bg-surface-container-high border border-outline-variant/30 text-on-surface font-label-caps text-label-caps rounded hover:bg-surface-variant/50 transition-all">JSON</button></div></div></div>
+<div class="px-8 border-t border-outline-variant/10 pt-6">
+<ul class="space-y-1">
+
+<li class="py-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px]" data-icon="help">help</span>
+<span class="font-telemetry-sm text-telemetry-sm">Support</span>
+</li>
+</ul>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto px-margin-desktop relative radar-grid" style="background-image: radial-gradient(circle at 90.3151% 9.684%, rgba(0, 219, 231, 0.08) 0%, transparent 40%), radial-gradient(circle, rgba(0, 219, 231, 0.05) 1px, transparent 1px);">
+<div class="max-w-6xl mx-auto space-y-gutter">
+<!-- Header & Filter -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="font-display-lg text-display-lg text-primary tracking-tight">Flyover History</h1>
+<p class="font-body-base text-body-base text-on-surface-variant mt-2 max-w-xl">
+                        Comprehensive log of all detected transponder activity within a 100km radius. Toggle alerts for flight path proximity breaches.
+                    </p>
+</div>
+<div class="flex gap-2 p-1 bg-surface-container-low rounded-xl border border-outline-variant/20">
+<button class="px-4 py-2 rounded-lg bg-surface-container-high font-label-caps text-label-caps tracking-widest transition-all bg-primary-container text-on-primary-container">ALL FLIGHTS</button>
+<button class="px-4 py-2 rounded-lg text-on-surface-variant hover:text-primary font-label-caps text-label-caps tracking-widest transition-all">PROXIMITY ALERTS ONLY</button>
+</div>
+</div>
+<!-- Stats Summary (Asymmetric Bento) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<div class="md:col-span-1 glass-panel p-6 rounded-xl bg-surface-container-lowest/40">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">TOTAL DETECTIONS</span>
+<div class="mt-2 font-telemetry-lg text-telemetry-lg text-primary glow-cyan">1,284</div>
+</div>
+<div class="md:col-span-1 glass-panel p-6 rounded-xl bg-surface-container-lowest/40">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">AVG DURATION</span>
+<div class="mt-2 font-telemetry-lg text-telemetry-lg text-secondary">12m 45s</div>
+</div>
+<div class="md:col-span-2 glass-panel p-6 rounded-xl bg-surface-container-lowest/40 flex items-center justify-between border-l-4 border-l-primary">
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">LAST CRITICAL ALERT</span>
+<div class="mt-2 font-telemetry-lg text-telemetry-lg text-error">UA-902 &amp; LH-441 (42m Gap)</div>
+</div>
+<span class="material-symbols-outlined text-error text-[32px] animate-pulse" data-icon="warning">warning</span>
+</div>
+</div>
+<!-- Table Container -->
+<div class="glass-panel rounded-xl overflow-hidden bg-surface-container-lowest/40">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/60 border-b border-outline-variant/30 bg-surface-container-low">
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">TIME OF ARRIVAL</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">FLIGHT NUMBER</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">MINIMUM DISTANCE</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">DURATION</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">STATUS</th>
+</tr>
+</thead>
+<tbody class="font-telemetry-sm text-telemetry-sm divide-y divide-outline-variant/10">
+<!-- Row 1: Critical Alert -->
+<tr class="expandable-row group" data-expanded="false" onclick="toggleRow(this)">
+<td class="px-6 py-5 text-on-surface">14:22:08 UTC</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="flight_takeoff">flight_takeoff</span>
+<span class="font-telemetry-lg text-telemetry-lg text-primary group-hover:underline">AF-2910</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="font-telemetry-sm text-telemetry-sm text-error flex items-center gap-1">
+                                    42m
+                                    <span class="material-symbols-outlined text-[14px]" data-icon="trending_down">trending_down</span>
+</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant">08m 14s</td>
+<td class="px-6 py-5">
+<span class="bg-error-container text-on-error-container px-2 py-1 rounded font-label-caps text-label-caps">CRITICAL PROXIMITY</span>
+</td>
+</tr>
+<tr>
+<td class="p-0" colspan="5">
+<div class="expanded-content bg-surface-container/30 px-6">
+<div class="py-6 grid grid-cols-2 gap-8">
+<div class="h-40 rounded-lg bg-surface-container-high relative overflow-hidden">
+<div class="absolute inset-0 radar-grid opacity-30"></div>
+<!-- Simulated Flight Path Map -->
+<div class="absolute top-1/2 left-1/4 w-1/2 h-[2px] bg-error/50 rotate-[-15deg]"></div>
+<div class="absolute top-[45%] left-1/4 w-3 h-3 bg-error rounded-full pip-pulse"></div>
+<div class="absolute bottom-4 left-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Path Reconstruction Zone 4-B</div>
+</div>
+<div class="space-y-4">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">ALTITUDE</p>
+<p class="font-telemetry-sm text-telemetry-sm text-primary">32,000 FT</p>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">SPEED</p>
+<p class="font-telemetry-sm text-telemetry-sm text-primary">442 KTS</p>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">AIRCRAFT</p>
+<p class="font-telemetry-sm text-telemetry-sm text-primary">Airbus A350-941</p>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">SQUAWK</p>
+<p class="font-telemetry-sm text-telemetry-sm text-primary">7700</p>
+</div>
+</div>
+<button class="font-label-caps text-label-caps text-primary border-b border-primary/40 hover:border-primary pb-0.5 transition-all">DOWNLOAD TELEMETRY PACKAGE (.JSON)</button>
+</div>
+</div>
+</div>
+</td>
+</tr>
+<!-- Row 2: Standard -->
+<tr class="expandable-row group" data-expanded="false" onclick="toggleRow(this)">
+<td class="px-6 py-5 text-on-surface">14:15:32 UTC</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]" data-icon="flight">flight</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface group-hover:text-primary transition-colors">UA-104</span>
+</div>
+</td>
+<td class="px-6 py-5 text-on-surface-variant font-telemetry-sm text-telemetry-sm">1,240m</td>
+<td class="px-6 py-5 text-on-surface-variant">14m 22s</td>
+<td class="px-6 py-5">
+<span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded font-label-caps text-label-caps">NOMINAL</span>
+</td>
+</tr>
+<tr><td class="p-0" colspan="5"><div class="expanded-content bg-surface-container/30"></div></td></tr>
+<!-- Row 3: Warning -->
+<tr class="expandable-row group" data-expanded="false" onclick="toggleRow(this)">
+<td class="px-6 py-5 text-on-surface">14:08:44 UTC</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-[18px]" data-icon="flight">flight</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface group-hover:text-primary transition-colors">DL-4481</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="font-telemetry-sm text-telemetry-sm text-tertiary-fixed-dim">210m</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant">05m 58s</td>
+<td class="px-6 py-5">
+<span class="bg-tertiary-container text-on-tertiary-container px-2 py-1 rounded font-label-caps text-label-caps">ADVISORY</span>
+</td>
+</tr>
+<tr><td class="p-0" colspan="5"><div class="expanded-content bg-surface-container/30"></div></td></tr>
+<!-- Row 4: Standard -->
+<tr class="expandable-row group" data-expanded="false" onclick="toggleRow(this)">
+<td class="px-6 py-5 text-on-surface">13:58:12 UTC</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]" data-icon="flight">flight</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface group-hover:text-primary transition-colors">BA-007</span>
+</div>
+</td>
+<td class="px-6 py-5 text-on-surface-variant font-telemetry-sm text-telemetry-sm">3,450m</td>
+<td class="px-6 py-5 text-on-surface-variant">22m 10s</td>
+<td class="px-6 py-5">
+<span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded font-label-caps text-label-caps">NOMINAL</span>
+</td>
+</tr>
+<tr><td class="p-0" colspan="5"><div class="expanded-content bg-surface-container/30"></div></td></tr>
+</tbody>
+</table>
+<div class="px-6 py-4 bg-surface-container-low/40 flex justify-between items-center">
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">Showing 1-10 of 1,284 telemetry records</span>
+<div class="flex gap-2">
+<button class="px-3 py-1 bg-surface-container-high rounded border border-outline-variant/30 text-on-surface-variant disabled:opacity-30 cursor-not-allowed">
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="px-3 py-1 bg-surface-container-high rounded border border-outline-variant/30 text-primary">
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating UI Detail (Visual Flare) -->
+<div class="fixed bottom-margin-desktop right-margin-desktop w-64 glass-panel p-4 rounded-xl bg-surface-container-highest/60 border-l-4 border-l-primary hidden xl:block">
+<div class="flex items-center justify-between mb-4">
+<span class="font-label-caps text-label-caps text-primary uppercase tracking-widest">LIVE STATUS</span>
+<span class="w-2 h-2 bg-secondary rounded-full animate-ping"></span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">API LATENCY</span>
+<div class="w-32 h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="w-1/3 h-full bg-primary"></div>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">DATA INTEGRITY</span>
+<span class="font-label-caps text-label-caps text-secondary">CALIBRATED</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">DATA RATE</span>
+<span class="font-label-caps text-label-caps text-primary">42 MB/S</span>
+</div>
+</div>
+</div>
+</main>
+</div>
+<script>
+        function toggleRow(element) {
+            const isExpanded = element.getAttribute('data-expanded') === 'true';
+            
+            // Close all others
+            document.querySelectorAll('.expandable-row').forEach(row => {
+                row.setAttribute('data-expanded', 'false');
+            });
+            
+            // Toggle current
+            if (!isExpanded) {
+                element.setAttribute('data-expanded', 'true');
+            }
+        }
+
+        // Add atmospheric scanning effect to the background
+        document.addEventListener('mousemove', (e) => {
+            const map = document.querySelector('.radar-grid');
+            if (!map) return;
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            map.style.backgroundImage = `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(0, 219, 231, 0.08) 0%, transparent 40%), radial-gradient(circle, rgba(0, 219, 231, 0.05) 1px, transparent 1px)`;
+        });
+    </script>
+
+
+
+
+
+
+</body></html>
