@@ -101,6 +101,8 @@
         .expandable-row[data-expanded="true"] { background-color: rgba(0, 219, 231, 0.05); }
         .expanded-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
         .expandable-row[data-expanded="true"] + tr .expanded-content { max-height: 300px; }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.8); opacity: 0.6; cursor: pointer; }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
     </style>
 </head>
 <body class="font-body-base text-body-base selection:bg-primary-container/30 flex flex-col h-screen overflow-hidden">
@@ -143,20 +145,30 @@
 <p class="font-telemetry-sm text-telemetry-sm text-on-surface-variant opacity-60 mt-1">Log Analytics &amp; Management</p>
 </div>
 <nav class="flex-grow"><ul class="space-y-1">
-<li class="px-8 py-3 text-on-surface-variant hover:bg-surface-variant/30 transition-all duration-200 cursor-pointer flex items-center gap-4">
+<li class="px-8 py-3">
+<div class="flex items-center gap-4 text-on-surface-variant mb-2">
 <span class="material-symbols-outlined" data-icon="search">search</span>
 <span class="font-telemetry-sm text-telemetry-sm uppercase tracking-widest">Search History</span>
+</div>
+<input id="search-input" type="text" placeholder="Callsign or ICAO…" class="w-full bg-surface-container border border-outline-variant/30 rounded py-2 px-3 text-on-surface font-telemetry-sm text-telemetry-sm placeholder:text-outline focus:border-primary/50 focus:outline-none transition-colors">
 </li>
-<li class="px-8 py-3 text-on-surface-variant hover:bg-surface-variant/30 transition-all duration-200 cursor-pointer flex items-center gap-4">
+<li class="px-8 py-3">
+<div class="flex items-center gap-4 text-on-surface-variant mb-2">
 <span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
-<span class="font-telemetry-sm text-telemetry-sm uppercase tracking-widest">Date Range Picker</span>
+<span class="font-telemetry-sm text-telemetry-sm uppercase tracking-widest">Date Range</span>
+</div>
+<div class="space-y-2">
+<input id="date-from" type="date" class="w-full bg-surface-container border border-outline-variant/30 rounded py-2 px-3 text-on-surface font-telemetry-sm text-telemetry-sm focus:border-primary/50 focus:outline-none transition-colors">
+<input id="date-to" type="date" class="w-full bg-surface-container border border-outline-variant/30 rounded py-2 px-3 text-on-surface font-telemetry-sm text-telemetry-sm focus:border-primary/50 focus:outline-none transition-colors">
+<button id="date-clear" class="w-full py-1.5 text-on-surface-variant font-label-caps text-label-caps tracking-widest hover:text-primary transition-colors">CLEAR DATES</button>
+</div>
 </li>
-<li class="px-8 py-3 text-primary border-l-2 border-primary bg-primary/5 transition-all duration-200 cursor-pointer flex items-center gap-4 bg-primary/10">
+<li class="px-8 py-3 text-primary border-l-2 border-primary bg-primary/5 flex items-center gap-4 bg-primary/10">
 <span class="material-symbols-outlined" data-icon="download">download</span>
 <span class="font-telemetry-sm text-telemetry-sm uppercase tracking-widest">Export Options</span>
 </li>
 </ul></nav>
-<div class="px-8 mb-8"><div class="space-y-2"><p class="font-label-caps text-label-caps text-on-surface-variant mb-2 tracking-widest uppercase">QUICK EXPORT</p><div class="grid grid-cols-2 gap-2"><button class="py-2 bg-surface-container-high border border-outline-variant/30 text-on-surface font-label-caps text-label-caps rounded hover:bg-surface-variant/50 transition-all">CSV</button><button class="py-2 bg-surface-container-high border border-outline-variant/30 text-on-surface font-label-caps text-label-caps rounded hover:bg-surface-variant/50 transition-all">JSON</button></div></div></div>
+<div class="px-8 mb-8"><div class="space-y-2"><p class="font-label-caps text-label-caps text-on-surface-variant mb-2 tracking-widest uppercase">QUICK EXPORT</p><div class="grid grid-cols-2 gap-2"><button id="export-csv" class="py-2 bg-surface-container-high border border-outline-variant/30 text-on-surface font-label-caps text-label-caps rounded hover:bg-surface-variant/50 transition-all">CSV</button><button id="export-json" class="py-2 bg-surface-container-high border border-outline-variant/30 text-on-surface font-label-caps text-label-caps rounded hover:bg-surface-variant/50 transition-all">JSON</button></div></div></div>
 <div class="px-8 border-t border-outline-variant/10 pt-6">
 <ul class="space-y-1">
 
@@ -179,24 +191,24 @@
                     </p>
 </div>
 <div class="flex gap-2 p-1 bg-surface-container-low rounded-xl border border-outline-variant/20">
-<button class="px-4 py-2 rounded-lg bg-surface-container-high font-label-caps text-label-caps tracking-widest transition-all bg-primary-container text-on-primary-container">ALL FLIGHTS</button>
-<button class="px-4 py-2 rounded-lg text-on-surface-variant hover:text-primary font-label-caps text-label-caps tracking-widest transition-all">PROXIMITY ALERTS ONLY</button>
+<button id="filter-all" class="px-4 py-2 rounded-lg bg-surface-container-high font-label-caps text-label-caps tracking-widest transition-all bg-primary-container text-on-primary-container">ALL FLIGHTS</button>
+<button id="filter-alerts" class="px-4 py-2 rounded-lg text-on-surface-variant hover:text-primary font-label-caps text-label-caps tracking-widest transition-all">PROXIMITY ALERTS ONLY</button>
 </div>
 </div>
 <!-- Stats Summary (Asymmetric Bento) -->
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 <div class="md:col-span-1 glass-panel p-6 rounded-xl bg-surface-container-lowest/40">
 <span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">TOTAL DETECTIONS</span>
-<div class="mt-2 font-telemetry-lg text-telemetry-lg text-primary glow-cyan">1,284</div>
+<div id="stat-total" class="mt-2 font-telemetry-lg text-telemetry-lg text-primary glow-cyan">—</div>
 </div>
 <div class="md:col-span-1 glass-panel p-6 rounded-xl bg-surface-container-lowest/40">
 <span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">AVG DURATION</span>
-<div class="mt-2 font-telemetry-lg text-telemetry-lg text-secondary">12m 45s</div>
+<div id="stat-avg-duration" class="mt-2 font-telemetry-lg text-telemetry-lg text-secondary">—</div>
 </div>
 <div class="md:col-span-2 glass-panel p-6 rounded-xl bg-surface-container-lowest/40 flex items-center justify-between border-l-4 border-l-primary">
 <div>
 <span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">LAST CRITICAL ALERT</span>
-<div class="mt-2 font-telemetry-lg text-telemetry-lg text-error">UA-902 &amp; LH-441 (42m Gap)</div>
+<div id="stat-last-alert" class="mt-2 font-telemetry-lg text-telemetry-lg text-error">—</div>
 </div>
 <span class="material-symbols-outlined text-error text-[32px] animate-pulse" data-icon="warning">warning</span>
 </div>
@@ -213,125 +225,12 @@
 <th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">STATUS</th>
 </tr>
 </thead>
-<tbody class="font-telemetry-sm text-telemetry-sm divide-y divide-outline-variant/10">
-<!-- Row 1: Critical Alert -->
-<tr class="expandable-row group" data-expanded="false" onclick="toggleRow(this)">
-<td class="px-6 py-5 text-on-surface">14:22:08 UTC</td>
-<td class="px-6 py-5">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-[18px]" data-icon="flight_takeoff">flight_takeoff</span>
-<span class="font-telemetry-lg text-telemetry-lg text-primary group-hover:underline">AF-2910</span>
-</div>
-</td>
-<td class="px-6 py-5">
-<span class="font-telemetry-sm text-telemetry-sm text-error flex items-center gap-1">
-                                    42m
-                                    <span class="material-symbols-outlined text-[14px]" data-icon="trending_down">trending_down</span>
-</span>
-</td>
-<td class="px-6 py-5 text-on-surface-variant">08m 14s</td>
-<td class="px-6 py-5">
-<span class="bg-error-container text-on-error-container px-2 py-1 rounded font-label-caps text-label-caps">CRITICAL PROXIMITY</span>
-</td>
-</tr>
-<tr>
-<td class="p-0" colspan="5">
-<div class="expanded-content bg-surface-container/30 px-6">
-<div class="py-6 grid grid-cols-2 gap-8">
-<div class="h-40 rounded-lg bg-surface-container-high relative overflow-hidden">
-<div class="absolute inset-0 radar-grid opacity-30"></div>
-<!-- Simulated Flight Path Map -->
-<div class="absolute top-1/2 left-1/4 w-1/2 h-[2px] bg-error/50 rotate-[-15deg]"></div>
-<div class="absolute top-[45%] left-1/4 w-3 h-3 bg-error rounded-full pip-pulse"></div>
-<div class="absolute bottom-4 left-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Path Reconstruction Zone 4-B</div>
-</div>
-<div class="space-y-4">
-<div class="grid grid-cols-2 gap-4">
-<div>
-<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">ALTITUDE</p>
-<p class="font-telemetry-sm text-telemetry-sm text-primary">32,000 FT</p>
-</div>
-<div>
-<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">SPEED</p>
-<p class="font-telemetry-sm text-telemetry-sm text-primary">442 KTS</p>
-</div>
-<div>
-<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">AIRCRAFT</p>
-<p class="font-telemetry-sm text-telemetry-sm text-primary">Airbus A350-941</p>
-</div>
-<div>
-<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">SQUAWK</p>
-<p class="font-telemetry-sm text-telemetry-sm text-primary">7700</p>
-</div>
-</div>
-<button class="font-label-caps text-label-caps text-primary border-b border-primary/40 hover:border-primary pb-0.5 transition-all">DOWNLOAD TELEMETRY PACKAGE (.JSON)</button>
-</div>
-</div>
-</div>
-</td>
-</tr>
-<!-- Row 2: Standard -->
-<tr class="expandable-row group" data-expanded="false" onclick="toggleRow(this)">
-<td class="px-6 py-5 text-on-surface">14:15:32 UTC</td>
-<td class="px-6 py-5">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-on-surface-variant text-[18px]" data-icon="flight">flight</span>
-<span class="font-telemetry-sm text-telemetry-sm text-on-surface group-hover:text-primary transition-colors">UA-104</span>
-</div>
-</td>
-<td class="px-6 py-5 text-on-surface-variant font-telemetry-sm text-telemetry-sm">1,240m</td>
-<td class="px-6 py-5 text-on-surface-variant">14m 22s</td>
-<td class="px-6 py-5">
-<span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded font-label-caps text-label-caps">NOMINAL</span>
-</td>
-</tr>
-<tr><td class="p-0" colspan="5"><div class="expanded-content bg-surface-container/30"></div></td></tr>
-<!-- Row 3: Warning -->
-<tr class="expandable-row group" data-expanded="false" onclick="toggleRow(this)">
-<td class="px-6 py-5 text-on-surface">14:08:44 UTC</td>
-<td class="px-6 py-5">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-tertiary-fixed-dim text-[18px]" data-icon="flight">flight</span>
-<span class="font-telemetry-sm text-telemetry-sm text-on-surface group-hover:text-primary transition-colors">DL-4481</span>
-</div>
-</td>
-<td class="px-6 py-5">
-<span class="font-telemetry-sm text-telemetry-sm text-tertiary-fixed-dim">210m</span>
-</td>
-<td class="px-6 py-5 text-on-surface-variant">05m 58s</td>
-<td class="px-6 py-5">
-<span class="bg-tertiary-container text-on-tertiary-container px-2 py-1 rounded font-label-caps text-label-caps">ADVISORY</span>
-</td>
-</tr>
-<tr><td class="p-0" colspan="5"><div class="expanded-content bg-surface-container/30"></div></td></tr>
-<!-- Row 4: Standard -->
-<tr class="expandable-row group" data-expanded="false" onclick="toggleRow(this)">
-<td class="px-6 py-5 text-on-surface">13:58:12 UTC</td>
-<td class="px-6 py-5">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-on-surface-variant text-[18px]" data-icon="flight">flight</span>
-<span class="font-telemetry-sm text-telemetry-sm text-on-surface group-hover:text-primary transition-colors">BA-007</span>
-</div>
-</td>
-<td class="px-6 py-5 text-on-surface-variant font-telemetry-sm text-telemetry-sm">3,450m</td>
-<td class="px-6 py-5 text-on-surface-variant">22m 10s</td>
-<td class="px-6 py-5">
-<span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded font-label-caps text-label-caps">NOMINAL</span>
-</td>
-</tr>
-<tr><td class="p-0" colspan="5"><div class="expanded-content bg-surface-container/30"></div></td></tr>
+<tbody id="history-tbody" class="font-telemetry-sm text-telemetry-sm divide-y divide-outline-variant/10">
+<tr><td colspan="5" class="px-6 py-10 text-center font-telemetry-sm text-telemetry-sm text-on-surface-variant">Loading…</td></tr>
 </tbody>
 </table>
 <div class="px-6 py-4 bg-surface-container-low/40 flex justify-between items-center">
-<span class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">Showing 1-10 of 1,284 telemetry records</span>
-<div class="flex gap-2">
-<button class="px-3 py-1 bg-surface-container-high rounded border border-outline-variant/30 text-on-surface-variant disabled:opacity-30 cursor-not-allowed">
-<span class="material-symbols-outlined text-[16px]" data-icon="chevron_left">chevron_left</span>
-</button>
-<button class="px-3 py-1 bg-surface-container-high rounded border border-outline-variant/30 text-primary">
-<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
-</button>
-</div>
+<span id="stat-count-label" class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">Loading…</span>
 </div>
 </div>
 </div>
@@ -385,6 +284,7 @@
             map.style.backgroundImage = `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(0, 219, 231, 0.08) 0%, transparent 40%), radial-gradient(circle, rgba(0, 219, 231, 0.05) 1px, transparent 1px)`;
         });
     </script>
+<script src="history.js"></script>
 
 
 

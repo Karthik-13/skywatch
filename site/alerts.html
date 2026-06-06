@@ -136,7 +136,7 @@
 <div class="h-8 w-px bg-outline-variant mx-2"></div>
 <div class="flex items-center bg-surface-variant/30 px-3 py-1 rounded">
 <span class="material-symbols-outlined text-primary-fixed-dim text-[20px] mr-2">gps_fixed</span>
-<span class="font-telemetry-sm text-telemetry-sm text-on-surface">37.7749° N, 122.4194° W</span>
+<span id="base-coords" class="font-telemetry-sm text-telemetry-sm text-on-surface">Locating…</span>
 </div>
 </div>
 <div class="flex items-center gap-6 h-full">
@@ -182,10 +182,10 @@
 <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant/10">
 <div>
 <p class="font-telemetry-lg text-telemetry-lg text-on-surface">Proximity Entry Tone</p>
-<p class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">Trigger when flight enters 100m radius</p>
+<p class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">Trigger when a flight enters CRITICAL proximity range</p>
 </div>
 <label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only toggle-switch" type="checkbox">
+<input id="audio-proximity" class="sr-only toggle-switch" type="checkbox">
 <div class="w-11 h-6 bg-surface-variant rounded-full transition-colors toggle-bg flex items-center px-1">
 <div class="w-4 h-4 bg-white rounded-full transition-transform toggle-dot"></div>
 </div>
@@ -194,11 +194,11 @@
 <!-- Toggle 2 -->
 <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant/10">
 <div>
-<p class="font-telemetry-lg text-telemetry-lg text-on-surface">Vector Collision Warning</p>
-<p class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">Audio alert for intersecting flight paths</p>
+<p class="font-telemetry-lg text-telemetry-lg text-on-surface">Advisory Range Warning</p>
+<p class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">Audio alert when a flight enters WARNING range</p>
 </div>
 <label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only toggle-switch" type="checkbox">
+<input id="audio-collision" class="sr-only toggle-switch" type="checkbox">
 <div class="w-11 h-6 bg-surface-variant rounded-full transition-colors toggle-bg flex items-center px-1">
 <div class="w-4 h-4 bg-white rounded-full transition-transform toggle-dot"></div>
 </div>
@@ -207,11 +207,11 @@
 <!-- Toggle 3 -->
 <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant/10">
 <div>
-<p class="font-telemetry-lg text-telemetry-lg text-on-surface text-error">System Overload Alert</p>
-<p class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">High-priority siren for sensor failure</p>
+<p class="font-telemetry-lg text-telemetry-lg text-on-surface text-error">Feed Fault Alert</p>
+<p class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">High-priority tone when the data feed errors or rate-limits</p>
 </div>
 <label class="relative inline-flex items-center cursor-pointer">
-<input class="sr-only toggle-switch" type="checkbox">
+<input id="audio-overload" class="sr-only toggle-switch" type="checkbox">
 <div class="w-11 h-6 bg-surface-variant rounded-full transition-colors toggle-bg flex items-center px-1">
 <div class="w-4 h-4 bg-white rounded-full transition-transform toggle-dot"></div>
 </div>
@@ -229,16 +229,20 @@
 <div class="space-y-4">
 <div class="flex justify-between items-center">
 <span class="font-telemetry-sm text-telemetry-sm uppercase text-on-surface-variant">Proximity Radius (m)</span>
-<span class="font-telemetry-lg text-telemetry-lg text-primary text-primary-container">100m</span>
+<span id="proximity-val" class="font-telemetry-lg text-telemetry-lg text-primary text-primary-container">500m</span>
 </div>
-<input class="w-full" max="1000" min="10" type="range" value="100">
+<input id="proximity-slider" class="w-full" max="5000" min="10" type="range" value="500">
 </div>
 <div class="space-y-4">
 <div class="flex justify-between items-center">
-<span class="font-telemetry-sm text-telemetry-sm uppercase text-on-surface-variant">Update Frequency (ms)</span>
-<span class="font-telemetry-lg text-telemetry-lg text-primary text-primary-container">250ms</span>
+<span class="font-telemetry-sm text-telemetry-sm uppercase text-on-surface-variant">Update Interval (s)</span>
+<span id="interval-val" class="font-telemetry-lg text-telemetry-lg text-primary text-primary-container">120s</span>
 </div>
-<input class="w-full" max="2000" min="50" type="range" value="250">
+<input id="interval-slider" class="w-full" max="300" min="60" type="range" value="120">
+</div>
+<div class="flex items-center gap-3 pt-2">
+<button id="save-btn" class="px-6 py-2 bg-primary/10 border border-primary/40 text-primary font-label-caps text-label-caps rounded hover:bg-primary/20 transition-all">SAVE CONFIG</button>
+<span id="save-status" class="font-telemetry-sm text-telemetry-sm text-secondary"></span>
 </div>
 </div>
 </div>
@@ -265,15 +269,9 @@
 <div class="absolute -inset-6 border border-primary/60 rounded-full animate-pulse"></div>
 <div class="w-4 h-4 bg-primary rounded-full shadow-[0_0_20px_#00dbe7] z-10 relative"></div>
 <div class="absolute top-6 left-6 whitespace-nowrap glass-panel px-3 py-1 rounded">
-<p class="font-telemetry-sm text-telemetry-sm text-primary">BASE_SIG: 37.7749° N, 122.4194° W</p>
+<p id="base-lat" class="font-telemetry-sm text-telemetry-sm text-primary">BASE_SIG: —</p>
 </div>
 </div>
-</div>
-<!-- Map UI Controls -->
-<div class="absolute bottom-6 right-6 flex flex-col gap-2">
-<button class="w-10 h-10 glass-panel flex items-center justify-center hover:bg-primary/20"><span class="material-symbols-outlined">add</span></button>
-<button class="w-10 h-10 glass-panel flex items-center justify-center hover:bg-primary/20"><span class="material-symbols-outlined">remove</span></button>
-<button class="w-10 h-10 glass-panel flex items-center justify-center hover:bg-primary/20"><span class="material-symbols-outlined">layers</span></button>
 </div>
 </div>
 <div class="p-4 bg-surface-container-low border-t border-outline-variant/20 grid grid-cols-3 gap-4">
@@ -314,58 +312,8 @@
 <th class="pb-4"></th>
 </tr>
 </thead>
-<tbody class="divide-y divide-outline-variant/10">
-<tr class="group hover:bg-surface-variant/10 transition-colors">
-<td class="py-4 font-telemetry-sm text-telemetry-sm">14:22:01 UTC</td>
-<td class="py-4">
-<div class="flex items-center gap-2">
-<span class="font-telemetry-lg text-telemetry-lg text-on-surface">UA-882</span>
-<span class="font-label-caps text-label-caps bg-surface-variant px-1.5 py-0.5 rounded text-on-surface-variant">B738</span>
-</div>
-</td>
-<td class="py-4 font-telemetry-lg text-telemetry-lg text-primary text-primary-container">82m</td>
-<td class="py-4 font-telemetry-sm text-telemetry-sm">3,400</td>
-<td class="py-4">
-<span class="px-2 py-1 rounded bg-error-container/20 text-error font-label-caps text-label-caps border border-error/20">BREACH</span>
-</td>
-<td class="py-4 text-right">
-<button class="text-primary-fixed-dim hover:text-primary transition-colors"><span class="material-symbols-outlined">analytics</span></button>
-</td>
-</tr>
-<tr class="group hover:bg-surface-variant/10 transition-colors">
-<td class="py-4 font-telemetry-sm text-telemetry-sm">13:58:45 UTC</td>
-<td class="py-4">
-<div class="flex items-center gap-2">
-<span class="font-telemetry-lg text-telemetry-lg text-on-surface">FX-900</span>
-<span class="font-label-caps text-label-caps bg-surface-variant px-1.5 py-0.5 rounded text-on-surface-variant">A320</span>
-</div>
-</td>
-<td class="py-4 font-telemetry-lg text-telemetry-lg text-on-surface">114m</td>
-<td class="py-4 font-telemetry-sm text-telemetry-sm">1,250</td>
-<td class="py-4">
-<span class="px-2 py-1 rounded bg-secondary-container/10 text-secondary-fixed font-label-caps text-label-caps border border-secondary-fixed/20">NOMINAL</span>
-</td>
-<td class="py-4 text-right">
-<button class="text-primary-fixed-dim hover:text-primary transition-colors"><span class="material-symbols-outlined">analytics</span></button>
-</td>
-</tr>
-<tr class="group hover:bg-surface-variant/10 transition-colors">
-<td class="py-4 font-telemetry-sm text-telemetry-sm">13:12:12 UTC</td>
-<td class="py-4">
-<div class="flex items-center gap-2">
-<span class="font-telemetry-lg text-telemetry-lg text-on-surface">SWA-22</span>
-<span class="font-label-caps text-label-caps bg-surface-variant px-1.5 py-0.5 rounded text-on-surface-variant">B737</span>
-</div>
-</td>
-<td class="py-4 font-telemetry-lg text-telemetry-lg text-primary text-primary-container">91m</td>
-<td class="py-4 font-telemetry-sm text-telemetry-sm">8,900</td>
-<td class="py-4">
-<span class="px-2 py-1 rounded bg-error-container/20 text-error font-label-caps text-label-caps border border-error/20">BREACH</span>
-</td>
-<td class="py-4 text-right">
-<button class="text-primary-fixed-dim hover:text-primary transition-colors"><span class="material-symbols-outlined">analytics</span></button>
-</td>
-</tr>
+<tbody id="incident-tbody" class="divide-y divide-outline-variant/10">
+<tr><td colspan="5" class="py-6 text-center font-telemetry-sm text-telemetry-sm text-on-surface-variant">Loading…</td></tr>
 </tbody>
 </table>
 </div>
@@ -376,15 +324,6 @@
 </main>
 </div>
 <script>
-        // Micro-interactions for sliders and toggles
-        document.querySelectorAll('input[type="range"]').forEach(slider => {
-            slider.addEventListener('input', (e) => {
-                const valueDisplay = e.target.parentElement.querySelector('.text-primary');
-                const suffix = e.target.min == "10" ? 'm' : 'ms';
-                valueDisplay.textContent = e.target.value + suffix;
-            });
-        });
-
         // Atmospheric pulsing for breach status
         setInterval(() => {
             document.querySelectorAll('.bg-error-container\\/20').forEach(el => {
@@ -392,6 +331,8 @@
             });
         }, 800);
     </script>
+<script src="audio-alerts.js"></script>
+<script src="alerts.js"></script>
 
 
 

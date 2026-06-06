@@ -126,7 +126,7 @@
 <div class="h-8 w-px bg-outline-variant mx-2"></div>
 <div class="flex items-center bg-surface-variant/30 px-3 py-1 rounded">
 <span class="material-symbols-outlined text-primary-fixed-dim text-[20px] mr-2">gps_fixed</span>
-<span class="font-telemetry-sm text-telemetry-sm text-on-surface">51.5074° N, 0.1278° W</span>
+<span class="font-telemetry-sm text-telemetry-sm text-on-surface" id="header-coords">51.5074° N, 0.1278° W</span>
 </div>
 </div>
 <div class="flex items-center gap-6 h-full">
@@ -146,52 +146,16 @@
 <!-- Sidebar Left: Manifest -->
 <aside class="w-sidebar-width flex flex-col border-r border-outline-variant bg-surface-container-lowest">
 <div class="p-4 border-b border-outline-variant">
-<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-4 tracking-widest">Active Manifest</h3>
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Active Manifest</h3>
+<span class="font-telemetry-sm text-telemetry-sm text-outline">&lt; 5km</span>
+</div>
 <div class="relative">
-<input class="w-full bg-surface-container border-none rounded-lg py-2 pl-10 text-on-surface font-body-base placeholder:text-outline" placeholder="Filter flights..." type="text">
+<input class="w-full bg-surface-container border-none rounded-lg py-2 pl-10 text-on-surface font-body-base placeholder:text-outline" placeholder="Filter flights..." type="text" id="filter-input">
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
 </div>
 </div>
-<div class="flex-1 overflow-y-auto space-y-px">
-<!-- High Priority Card -->
-<div class="p-4 bg-tertiary-container/10 border-l-4 border-tertiary transition-all hover:bg-tertiary-container/20 cursor-pointer">
-<div class="flex justify-between items-start mb-2">
-<span class="font-telemetry-lg text-telemetry-lg text-tertiary">SW-402</span>
-<span class="bg-tertiary text-on-tertiary font-label-caps text-label-caps px-2 py-0.5 rounded">CRITICAL</span>
-</div>
-<div class="grid grid-cols-2 gap-2 text-on-surface-variant">
-<div class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">ALT: 12,400FT</div>
-<div class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">SPD: 420KTS</div>
-<div class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">DST: 88M</div>
-<div class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">HDG: 245°</div>
-</div>
-</div>
-<!-- Standard Cards -->
-<div class="p-4 transition-all hover:bg-surface-container-high cursor-pointer border-l-4 border-transparent">
-<div class="flex justify-between items-start mb-2">
-<span class="font-telemetry-lg text-telemetry-lg text-primary">UA-911</span>
-<span class="bg-surface-container-high text-on-surface-variant font-label-caps text-label-caps px-2 py-0.5 rounded">STABLE</span>
-</div>
-<div class="grid grid-cols-2 gap-2 text-on-surface-variant">
-<div class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">ALT: 34,000FT</div>
-<div class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">SPD: 510KTS</div>
-<div class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">DST: 2.4KM</div>
-<div class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">HDG: 090°</div>
-</div>
-</div>
-<div class="p-4 transition-all hover:bg-surface-container-high cursor-pointer border-l-4 border-transparent">
-<div class="flex justify-between items-start mb-2">
-<span class="font-telemetry-lg text-telemetry-lg text-primary">DL-442</span>
-<span class="bg-surface-container-high text-on-surface-variant font-label-caps text-label-caps px-2 py-0.5 rounded">STABLE</span>
-</div>
-<div class="grid grid-cols-2 gap-2 text-on-surface-variant">
-<div class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">ALT: 29,500FT</div>
-<div class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">SPD: 485KTS</div>
-<div class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">DST: 5.1KM</div>
-<div class="font-telemetry-sm text-telemetry-sm text-on-surface-variant">HDG: 185°</div>
-</div>
-</div>
-</div>
+<div class="flex-1 overflow-y-auto space-y-px" id="manifest-list"></div>
 </aside>
 <!-- Main Tactical Radar View -->
 <main class="relative flex-1 bg-surface-container-lowest overflow-hidden">
@@ -201,17 +165,16 @@
 </div>
 <!-- Radar UI Layer -->
 <div class="absolute inset-0 flex items-center justify-center">
-<!-- Concentric Rings -->
-<div class="absolute size-[200px] border border-outline-variant/30 rounded-full flex items-center justify-center">
-<span class="absolute -top-4 font-label-caps text-label-caps text-outline">100M</span>
-<!-- Proximity Alert Pulse -->
-<div class="absolute inset-0 border-2 border-tertiary/20 rounded-full animate-ping"></div>
-</div>
-<div class="absolute size-[500px] border border-outline-variant/30 rounded-full flex items-center justify-center">
+<!-- Concentric Rings (5KM tactical scope — 800px diameter = 5km range, proportional) -->
+<div class="absolute size-[160px] border border-outline-variant/30 rounded-full flex items-center justify-center">
 <span class="absolute -top-4 font-label-caps text-label-caps text-outline">500M</span>
+<div class="absolute inset-0 border-2 border-tertiary/20 rounded-full animate-ping hidden" id="proximity-ring-ping"></div>
+</div>
+<div class="absolute size-[320px] border border-outline-variant/30 rounded-full flex items-center justify-center">
+<span class="absolute -top-4 font-label-caps text-label-caps text-outline">1KM</span>
 </div>
 <div class="absolute size-[800px] border border-outline-variant/20 rounded-full flex items-center justify-center">
-<span class="absolute -top-4 font-label-caps text-label-caps text-outline">1KM</span>
+<span class="absolute -top-4 font-label-caps text-label-caps text-outline">5KM</span>
 </div>
 <!-- Radar Sweep -->
 <div class="absolute size-[800px] radar-sweep rounded-full pointer-events-none"></div>
@@ -220,42 +183,14 @@
 <div class="size-8 bg-primary-container rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(0,219,231,0.5)] animate-pulse-slow"><span class="material-symbols-outlined text-on-primary-container text-[20px]" style="font-variation-settings: 'FILL' 1;">home</span></div>
 <div class="absolute -inset-2 border border-primary/40 rounded-full animate-ping"></div>
 </div>
-<!-- Aircraft Icons (Absolute Positioned) -->
-<!-- Critical Aircraft -->
-<div class="absolute translate-x-[40px] -translate-y-[60px] group cursor-pointer">
-<div class="flex flex-col items-center">
-<div class="font-telemetry-sm text-telemetry-sm text-tertiary bg-surface-container-highest px-2 py-0.5 rounded mb-1 border border-tertiary/50">SW-402</div>
-<div class="text-tertiary drop-shadow-[0_0_8px_rgba(255,180,171,0.8)]">
-<span class="material-symbols-outlined text-[32px] rotate-[245deg]">flight</span>
-</div>
-</div>
-<!-- Flight path line conceptual -->
-<div class="absolute top-1/2 left-1/2 w-48 h-px bg-gradient-to-r from-tertiary to-transparent origin-left rotate-[65deg] opacity-50"></div>
-</div>
-<!-- Safe Aircraft 1 -->
-<div class="absolute -translate-x-[240px] translate-y-[150px] group cursor-pointer">
-<div class="flex flex-col items-center">
-<div class="font-telemetry-sm text-telemetry-sm text-primary bg-surface-container-high px-2 py-0.5 rounded mb-1 border border-primary/20">UA-911</div>
-<div class="text-primary opacity-80 group-hover:opacity-100 transition-opacity">
-<span class="material-symbols-outlined text-[24px] rotate-[90deg]">flight</span>
-</div>
-</div>
-</div>
-<!-- Safe Aircraft 2 -->
-<div class="absolute translate-x-[310px] translate-y-[220px] group cursor-pointer">
-<div class="flex flex-col items-center">
-<div class="font-telemetry-sm text-telemetry-sm text-primary bg-surface-container-high px-2 py-0.5 rounded mb-1 border border-primary/20">DL-442</div>
-<div class="text-primary opacity-80 group-hover:opacity-100 transition-opacity">
-<span class="material-symbols-outlined text-[24px] rotate-[185deg]">flight</span>
-</div>
-</div>
-</div>
+<!-- Aircraft Icons (live positions) -->
+<div id="radar-aircraft" class="absolute inset-0 pointer-events-none z-20"></div>
 </div>
 <!-- HUD Overlays -->
 <div class="absolute bottom-6 left-6 flex gap-4">
 <div class="glass-panel p-4 rounded-lg flex flex-col gap-1">
 <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">LOC COORDINATES</span>
-<span class="font-telemetry-lg text-telemetry-lg text-primary">51.5074° N, 0.1278° W</span>
+<span class="font-telemetry-lg text-telemetry-lg text-primary" id="hud-coords">51.5074° N, 0.1278° W</span>
 </div>
 <div class="glass-panel p-4 rounded-lg flex flex-col gap-1">
 <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">SCAN RESOLUTION</span>
@@ -270,28 +205,11 @@
 <span class="material-symbols-outlined animate-pulse" style="opacity: 1;">warning</span>
 <h3 class="font-label-caps text-label-caps uppercase tracking-widest">Active Proximity</h3>
 </div>
-<div class="bg-surface-container p-4 border border-tertiary/30 rounded-xl"><div class="flex justify-between items-start mb-4"><span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Closest Contact</span><span class="font-telemetry-lg text-telemetry-lg text-tertiary">SW-402</span></div><div class="grid grid-cols-2 gap-4"><div><p class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Time to Proximity</p><p class="font-telemetry-lg text-telemetry-lg text-on-surface" id="timer">00:06:15</p></div><div class="text-right"><p class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Separation</p><p class="font-telemetry-lg text-telemetry-lg text-on-surface">88.4M</p></div></div><div class="w-full bg-surface-container-highest h-1 rounded-full mt-6 overflow-hidden"><div class="bg-tertiary h-full w-4/5"></div></div></div>
+<div class="bg-surface-container p-4 border border-tertiary/30 rounded-xl"><div class="flex justify-between items-start mb-4"><span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Closest Contact</span><span class="font-telemetry-lg text-telemetry-lg text-tertiary" id="closest-contact">—</span></div><div class="grid grid-cols-2 gap-4"><div><p class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Time to Proximity</p><p class="font-telemetry-lg text-telemetry-lg text-on-surface" id="timer">—</p></div><div class="text-right"><p class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Separation</p><p class="font-telemetry-lg text-telemetry-lg text-on-surface" id="separation">—</p></div></div><div class="w-full bg-surface-container-highest h-1 rounded-full mt-6 overflow-hidden"><div class="bg-tertiary h-full" id="proximity-bar" style="width:0%"></div></div></div>
 </div>
 <div class="flex-1 p-4 space-y-4 overflow-y-auto">
 <h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Telemetry Log</h3>
-<div class="space-y-3">
-<div class="border-l-2 border-primary pl-3 py-1">
-<p class="font-telemetry-sm text-telemetry-sm text-primary">14:21:44 UTC</p>
-<p class="font-body-base text-body-base text-on-surface">UA-911 contact established Sector 4</p>
-</div>
-<div class="border-l-2 border-tertiary pl-3 py-1">
-<p class="font-telemetry-sm text-telemetry-sm text-tertiary">14:20:12 UTC</p>
-<p class="font-body-base text-body-base text-on-surface">WARNING: SW-402 distance threshold 100m breached</p>
-</div>
-<div class="border-l-2 border-secondary pl-3 py-1">
-<p class="font-telemetry-sm text-telemetry-sm text-secondary">14:18:55 UTC</p>
-<p class="font-body-base text-body-base text-on-surface">DL-442 cleared for landing runway 2</p>
-</div>
-<div class="border-l-2 border-outline pl-3 py-1">
-<p class="font-telemetry-sm text-telemetry-sm text-outline">14:15:30 UTC</p>
-<p class="font-body-base text-body-base text-on-surface">Radar sweep calibration complete</p>
-</div>
-</div>
+<div class="space-y-3" id="telemetry-log"></div>
 </div>
 <!-- Action Footer -->
 </aside>
@@ -299,26 +217,9 @@
 <!-- Footer / Status Bar -->
 
 </div>
+<script src="audio-alerts.js"></script>
+<script src="radar.js"></script>
 <script>
-        // Micro-interaction for the countdown timer
-        function updateTimer() {
-            const timerElement = document.getElementById('timer');
-            let timeParts = timerElement.innerText.split(':').map(Number);
-            let totalSeconds = timeParts[0] * 3600 + timeParts[1] * 60 + timeParts[2];
-            
-            if (totalSeconds > 0) {
-                totalSeconds--;
-            }
-
-            const h = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
-            const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
-            const s = (totalSeconds % 60).toString().padStart(2, '0');
-            
-            timerElement.innerText = `${h}:${m}:${s}`;
-        }
-
-        setInterval(updateTimer, 1000);
-
         // Simple atmospheric effect: flicker some UI elements slightly
         const glitchedElements = document.querySelectorAll('.animate-pulse');
         setInterval(() => {

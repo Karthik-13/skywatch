@@ -24,7 +24,7 @@ async def init_db():
             CREATE TABLE IF NOT EXISTS alert_config (
                 id                  INTEGER PRIMARY KEY CHECK (id = 1),
                 proximity_radius_m  REAL    NOT NULL DEFAULT 5000.0,
-                update_interval_ms  INTEGER NOT NULL DEFAULT 5000,
+                update_interval_ms  INTEGER NOT NULL DEFAULT 60000,
                 base_lat            REAL    NOT NULL DEFAULT 51.5074,
                 base_lon            REAL    NOT NULL DEFAULT -0.1278
             )
@@ -32,6 +32,11 @@ async def init_db():
         # Ensure exactly one config row exists
         await db.execute("""
             INSERT OR IGNORE INTO alert_config (id) VALUES (1)
+        """)
+        # One-time alignment: 120s default to stay within OpenSky daily credit limit
+        await db.execute("""
+            UPDATE alert_config SET update_interval_ms = 120000
+            WHERE id = 1 AND update_interval_ms < 120000
         """)
         await db.commit()
 
