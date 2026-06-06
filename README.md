@@ -2,6 +2,47 @@
 
 A personal flight-monitoring dashboard that shows aircraft passing near your location using live ADS-B data from the [OpenSky Network](https://opensky-network.org/). The UI is a multi-page tactical “glass cockpit” site; the backend ingests real transponder positions, classifies proximity risk, and persists flyover history.
 
+<p align="center">
+  <img src="skywatch-google-stitch/skywatch_live_radar_dashboard_data_driven_monitoring/screen.png" alt="SkyWatch HQ — Live Radar Dashboard" width="920" />
+  <br />
+  <sub><em>Live radar dashboard — Google Stitch “Aeronautical Precision” design, wired to OpenSky ADS-B</em></sub>
+</p>
+
+## Screens
+
+UI mockups from [Google Stitch](skywatch-google-stitch/aeronautical_precision/DESIGN.md) (`skywatch-google-stitch/`). The running app in `site/` follows this visual language with live data.
+
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <a href="site/index.html">
+        <img src="skywatch-google-stitch/skywatch_live_radar_dashboard_data_driven_monitoring/screen.png" alt="Radar dashboard" width="440" />
+      </a>
+      <br /><b>Radar</b> — PPI scope, manifest, proximity panel
+    </td>
+    <td align="center" width="50%">
+      <a href="site/manifest.html">
+        <img src="skywatch-google-stitch/skywatch_flight_telemetry_details_standardized/screen.png" alt="Flight telemetry manifest" width="440" />
+      </a>
+      <br /><b>Manifest</b> — per-aircraft telemetry &amp; metadata
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="site/history.html">
+        <img src="skywatch-google-stitch/skywatch_flyover_history_log_standardized/screen.png" alt="Flyover history log" width="440" />
+      </a>
+      <br /><b>History</b> — flyover archive, filters, export
+    </td>
+    <td align="center">
+      <a href="site/alerts.html">
+        <img src="skywatch-google-stitch/skywatch_alerts_calibration_standardized/screen.png" alt="Alerts and calibration" width="440" />
+      </a>
+      <br /><b>Alerts</b> — proximity calibration &amp; audio toggles
+    </td>
+  </tr>
+</table>
+
 ## Purpose
 
 SkyWatch answers a simple question: **what is flying near my home, and how close is it getting?**
